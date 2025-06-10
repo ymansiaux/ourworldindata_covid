@@ -20,16 +20,15 @@ df.head()
 
 
 ```{python}
-unique_countries = (df
-  .select(pl.col("iso_code"), pl.col("continent"), pl.col("location"))
-  .unique(maintain_order=True)
-)
+unique_countries = df.select(
+    pl.col("iso_code"), pl.col("continent"), pl.col("location")
+).unique(maintain_order=True)
 
-ref_table = (df
-  .select(['iso_code', 'continent', 'location'])
-  .unique(maintain_order=False)
-  .sort('iso_code')
-  .with_row_index('id', offset=1)
+ref_table = (
+    df.select(["iso_code", "continent", "location"])
+    .unique(maintain_order=False)
+    .sort("iso_code")
+    .with_row_index("id", offset=1)
 )
 
 ```
@@ -98,7 +97,7 @@ unique_countries.head()
 ```{python}
 repr(df_joined.columns)
 
-cases_columns = [
+cases_columns = ["id"] +[
     "total_cases",
     "new_cases",
     "new_cases_smoothed",
@@ -107,7 +106,7 @@ cases_columns = [
     "new_cases_smoothed_per_million",
 ]
 
-deaths_columns = [
+deaths_columns = ["id"] + [
     "total_deaths",
     "new_deaths",
     "new_deaths_smoothed",
@@ -116,7 +115,7 @@ deaths_columns = [
     "new_deaths_smoothed_per_million",
 ]
 
-hospital_columns = [
+hospital_columns = ["id"] + [
     "reproduction_rate",
     "icu_patients",
     "icu_patients_per_million",
@@ -128,7 +127,7 @@ hospital_columns = [
     "weekly_hosp_admissions_per_million",
 ]
 
-tests_columns = [
+tests_columns = ["id"] + [
     "total_tests",
     "new_tests",
     "total_tests_per_thousand",
@@ -140,7 +139,7 @@ tests_columns = [
     "tests_units",
 ]
 
-vaccinations_columns = [
+vaccinations_columns = ["id"] + [
     "total_vaccinations",
     "people_vaccinated",
     "people_fully_vaccinated",
@@ -157,7 +156,7 @@ vaccinations_columns = [
     "stringency_index",
 ]
 
-social_columns = [
+social_columns = ["id"] + [
     "population_density",
     "median_age",
     "aged_65_older",
@@ -178,4 +177,19 @@ social_columns = [
     "excess_mortality",
     "excess_mortality_cumulative_per_million",
 ]
+
+df_cases = df_joined.select(cases_columns)
+df_deaths = df_joined.select(deaths_columns)
+df_hospital = df_joined.select(hospital_columns)
+df_tests = df_joined.select(tests_columns)
+df_vaccinations = df_joined.select(vaccinations_columns)
+df_social = df_joined.select(social_columns)
+
+
+
+```
+
+
+```{python}
+ 
 ```
