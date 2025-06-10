@@ -1,7 +1,17 @@
 [project]
 name = "explore-covid"
 version = "0.1.0"
-description = "Add your description here"
+description = "A package for exploring COVID-19 data using DuckDB"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "duckdb>=0.9.0",
+    "polars>=0.20.0",
+]
+
+[project.scripts]
+explore-covid = "explore_covid.database:create_covid_database"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

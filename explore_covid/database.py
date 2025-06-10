@@ -12,11 +12,11 @@ def create_covid_database():
     # Connect to DuckDB (creates the database file)
 
     # Remove existing database if it exists
-    db_path = Path("covid_data.duckdb")
+    db_path = Path("db/covid_data.duckdb")
     if db_path.exists():
         db_path.unlink()
 
-    conn = duckdb.connect("covid_data.duckdb")
+    conn = duckdb.connect("db/covid_data.duckdb")
 
     print("Loading COVID data...")
     # Load the main dataset
@@ -167,7 +167,7 @@ def create_covid_database():
 
     # Print summary information
     print("\n=== DATABASE CREATED SUCCESSFULLY ===")
-    print(f"Database file: covid_data.duckdb")
+    print(f"Database file: {db_path}")
 
     tables_info = [
         ("ref_table", ref_table, "Country reference data"),
@@ -188,51 +188,10 @@ def create_covid_database():
             f"  {table_name:15} - {row_count:8,} rows, {col_count:2} columns - {description}"
         )
 
-    # Show sample queries
-    # print("\n=== SAMPLE QUERIES ===")
-
-    # print("\n1. Countries with highest population:")
-    # result = conn.execute(
-    #     """
-    #     SELECT location, population, continent
-    #     FROM ref_table
-    #     WHERE population IS NOT NULL
-    #     ORDER BY population DESC
-    #     LIMIT 5
-    # """
-    # ).fetchdf()
-    # print(result)
-
-    # print("\n2. Latest cases data for top 5 countries:")
-    # result = conn.execute(
-    #     """
-    #     SELECT c.iso_code, r.location, c.date, c.total_cases, c.new_cases
-    #     FROM df_cases c
-    #     JOIN ref_table r ON c.iso_code = r.iso_code
-    #     WHERE c.date = (SELECT MAX(date) FROM df_cases WHERE iso_code = c.iso_code)
-    #     AND c.total_cases IS NOT NULL
-    #     ORDER BY c.total_cases DESC
-    #     LIMIT 5
-    # """
-    # ).fetchdf()
-    # print(result)
-
-    # print("\n3. Vaccination progress for France:")
-    # result = conn.execute(
-    #     """
-    #     SELECT date, people_vaccinated, people_fully_vaccinated,
-    #            people_vaccinated_per_hundred, people_fully_vaccinated_per_hundred
-    #     FROM df_vaccinations
-    #     WHERE iso_code = 'FRA'
-    #     AND people_vaccinated IS NOT NULL
-    #     ORDER BY date DESC
-    #     LIMIT 5
-    # """
-    # ).fetchdf()
-    # print(result)
-
+    # Close the connection
     conn.close()
-    print(f"\nDatabase saved as: {Path('covid_data.duckdb').absolute()}")
+
+    return db_path
 
 
 if __name__ == "__main__":
