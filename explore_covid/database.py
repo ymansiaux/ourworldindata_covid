@@ -1,28 +1,69 @@
 import duckdb
 import polars as pl
 from pathlib import Path
+from .utils import get_data_dir, get_db_dir
 
 
-def create_covid_database():
+def create_db_path():
+    """
+    Create the database path using package-relative paths
+    """
+    db_dir = get_db_dir()
+    db_dir.mkdir(parents=True, exist_ok=True)
+    return db_dir / "covid_data.duckdb"
+
+
+def database_exists():
+    """
+    Check if the database file exists
+    """
+    db_path = create_db_path()
+    return db_path.exists()
+
+
+def connect_to_db():
+    """
+    Connect to the DuckDB database
+    """
+    db_path = create_db_path()
+    conn = duckdb.connect(db_path)
+    return conn
+
+
+def create_covid_database(force_recreate=False):
     """
     Create a DuckDB database with multiple tables from the OWID COVID data
     Tables: ref_table, df_cases, df_deaths, df_hospital, df_tests, df_vaccinations, df_social
+
+    Args:
+        force_recreate (bool): If True, recreate the database even if it exists
     """
 
-    # Connect to DuckDB (creates the database file)
+    # Check if database already exists
+    if database_exists() and not force_recreate:
+        db_path = create_db_path()
+        print(f"Database already exists at: {db_path}")
+        print("Use force_recreate=True to recreate the database")
+        return db_path
 
-    # Remove existing database if it exists
-    db_path = Path("db/covid_data.duckdb")
-    if db_path.exists():
+    # Remove existing database if it exists and we're forcing recreation
+    if database_exists() and force_recreate:
+        db_path = create_db_path()
         db_path.unlink()
+        print(f"Removed existing database: {db_path}")
 
-    conn = duckdb.connect("db/covid_data.duckdb")
+    # Connect to DuckDB (creates the database file)
+    conn = connect_to_db()
 
     print("Loading COVID data...")
-    # Load the main dataset
-    df = pl.read_csv("data/owid-covid-data.csv").with_columns(
-        pl.col("date").str.to_date("%Y-%m-%d")
-    )
+    # Load the main dataset using package-relative path
+    data_dir = get_data_dir()
+    csv_path = data_dir / "owid-covid-data.csv"
+
+    if not csv_path.exists():
+        raise FileNotFoundError(f"COVID data file not found at: {csv_path}")
+
+    df = pl.read_csv(str(csv_path)).with_columns(pl.col("date").str.to_date("%Y-%m-%d"))
 
     print(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     print("Creating tables...")
@@ -167,7 +208,7 @@ def create_covid_database():
 
     # Print summary information
     print("\n=== DATABASE CREATED SUCCESSFULLY ===")
-    print(f"Database file: {db_path}")
+    print(f"Database file: {create_db_path()}")
 
     tables_info = [
         ("ref_table", ref_table, "Country reference data"),
@@ -191,7 +232,7 @@ def create_covid_database():
     # Close the connection
     conn.close()
 
-    return db_path
+    return create_db_path()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,49 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Untitled\"\n",
+        "format: html\n",
+        "---"
+      ],
+      "id": "dce894bc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import duckdb"
+      ],
+      "id": "63bf048c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from explore_covid import create_covid_database, connect_to_db\n",
+        "\n",
+        "db_path = create_covid_database()\n",
+        "conn = connect_to_db()\n",
+        "\n",
+        "print(conn.execute(\"SELECT * FROM ref_table\").fetchall())"
+      ],
+      "id": "0dbaf905",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
